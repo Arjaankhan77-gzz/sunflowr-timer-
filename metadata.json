@@ -1,0 +1,6 @@
+{
+  "name": "Sunflower Clock & Athletic Timer",
+  "description": "Clean minimalist sunflower clock, precision athletic stopwatch with double-tap safety stop and lap marking, customizable sunflower alarms with custom device music and snooze, celebration animation, countdown timer, and world clock.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

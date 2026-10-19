@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .font-mono-sport {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-feature-settings: "tnum" 1, "zero" 1;
+  }
+  .font-digital {
+    font-family: 'Orbitron', ui-monospace, sans-serif;
+  }
+  .font-modern {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+  .font-serif-luxury {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+}
+
+@keyframes sunflowerSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes sunflowerPulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.4));
+  }
+  50% {
+    transform: scale(1.06);
+    filter: drop-shadow(0 0 45px rgba(245, 158, 11, 0.85));
+  }
+}
+
+@keyframes goldenRays {
+  0% {
+    transform: rotate(0deg) scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: rotate(180deg) scale(1.15);
+    opacity: 0.85;
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+    opacity: 0.5;
+  }
+}
+
+.animate-sunflower-pulse {
+  animation: sunflowerPulse 2s ease-in-out infinite;
+}
+
+.animate-golden-rays {
+  animation: goldenRays 12s linear infinite;
+}
+
+/* Prevent double-tap zoom delay on mobile / athletic tap */
+.touch-double-tap-guard {
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
