@@ -6,7 +6,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig(() => {
   return {
-    base: '/sunflowr-timer-/',
+    base: './',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
