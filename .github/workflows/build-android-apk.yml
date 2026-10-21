@@ -1,4 +1,5 @@
 
+
 name: Build Sunflower Clock APK
 
 on:
@@ -24,20 +25,29 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
+      - name: Install Capacitor
+        run: npm install @capacitor/core@^7 @capacitor/cli@^7 @capacitor/android@^7 --legacy-peer-deps
+
       - name: Build web app
         run: npm run build
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
+      - name: Create Capacitor config if missing
+        run: |
+          if [ ! -f capacitor.config.json ] && [ ! -f capacitor.config.ts ]; then
+            printf '%s\n' '{"appId":"com.sunflowerclock.app","appName":"Sunflower Clock","webDir":"dist"}' > capacitor.config.json
+          fi
 
       - name: Add Android platform
         run: npx cap add android
 
       - name: Sync Android assets
         run: npx cap sync android
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
 
       - name: Build APK
         working-directory: android
