@@ -59,14 +59,29 @@ export default function App() {
 
   // Application Settings
   const [settings, setSettings] = useState<AppSettings>(() => {
-    const saved = localStorage.getItem('sunflower_clock_settings');
-    return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
+    try {
+      const saved = window.localStorage.getItem('sunflower_clock_settings');
+      return saved
+        ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) }
+        : DEFAULT_SETTINGS;
+    } catch (error) {
+      console.warn('Could not restore saved clock settings; using defaults.', error);
+      try { window.localStorage.removeItem('sunflower_clock_settings'); } catch {}
+      return DEFAULT_SETTINGS;
+    }
   });
 
   // Alarms List
   const [alarms, setAlarms] = useState<AlarmItem[]>(() => {
-    const saved = localStorage.getItem('sunflower_clock_alarms');
-    return saved ? JSON.parse(saved) : DEFAULT_ALARMS;
+    try {
+      const saved = window.localStorage.getItem('sunflower_clock_alarms');
+      const parsed = saved ? JSON.parse(saved) : DEFAULT_ALARMS;
+      return Array.isArray(parsed) ? parsed : DEFAULT_ALARMS;
+    } catch (error) {
+      console.warn('Could not restore saved alarms; using defaults.', error);
+      try { window.localStorage.removeItem('sunflower_clock_alarms'); } catch {}
+      return DEFAULT_ALARMS;
+    }
   });
 
   // Active Ringing Alarm
