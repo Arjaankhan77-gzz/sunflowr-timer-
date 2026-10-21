@@ -4,7 +4,9 @@ name: Build Sunflower Clock APK
 on:
   workflow_dispatch:
   push:
-    branches: [main, master]
+    branches:
+      - main
+      - master
 
 jobs:
   build-apk:
@@ -20,7 +22,7 @@ jobs:
           node-version: 22
 
       - name: Install dependencies
-       run: npm install --legacy-peer-deps
+        run: npm install --legacy-peer-deps
 
       - name: Build web app
         run: npm run build
