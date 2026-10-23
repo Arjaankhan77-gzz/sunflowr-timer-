@@ -28,6 +28,9 @@ jobs:
       - name: Install Capacitor
         run: npm install @capacitor/core@^7 @capacitor/cli@^7 @capacitor/android@^7 --legacy-peer-deps
 
+      - name: Install native background alarm notifications
+        run: npm install @capacitor/local-notifications@^7 --legacy-peer-deps
+
       - name: Build web app
         run: npm run build
 
