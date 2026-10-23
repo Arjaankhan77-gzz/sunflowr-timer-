@@ -46,6 +46,50 @@ jobs:
       - name: Sync Android assets
         run: npx cap sync android
 
+      - name: Enable full-screen alarm on Android lock screen
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          manifest = Path("android/app/src/main/AndroidManifest.xml")
+          if not manifest.exists():
+              raise SystemExit("AndroidManifest.xml not found after Capacitor sync")
+          xml = manifest.read_text()
+          for permission in [
+              'android.permission.USE_FULL_SCREEN_INTENT',
+              'android.permission.SCHEDULE_EXACT_ALARM',
+              'android.permission.WAKE_LOCK',
+          ]:
+              tag = f'<uses-permission android:name="{permission}" />'
+              if permission not in xml:
+                  xml = xml.replace('<application', f'    {tag}\\n    <application', 1)
+          marker = 'android:name=".MainActivity"'
+          if marker in xml:
+              start = xml.index(marker)
+              end = xml.index('>', start)
+              activity = xml[start:end]
+              for attr in ['android:showWhenLocked="true"', 'android:turnScreenOn="true"']:
+                  if attr not in activity:
+                      xml = xml[:end] + ' ' + attr + xml[end:]
+                      end = xml.index('>', start)
+          elif 'android:showWhenLocked="true"' not in xml:
+              raise SystemExit("MainActivity entry not found; refusing to silently skip lock-screen setup")
+          manifest.write_text(xml)
+
+          java = Path("node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/LocalNotificationManager.java")
+          if not java.exists():
+              raise SystemExit("LocalNotificationManager.java not found; full-screen patch cannot be applied")
+          source = java.read_text()
+          anchor = 'mBuilder.setContentIntent(pendingIntent);'
+          patched = anchor + '\\n        mBuilder.setFullScreenIntent(pendingIntent, true);'
+          if 'mBuilder.setFullScreenIntent(pendingIntent, true);' not in source:
+              if anchor not in source:
+                  raise SystemExit("Notification content intent anchor not found; refusing to silently skip full-screen patch")
+              source = source.replace(anchor, patched, 1)
+              java.write_text(source)
+          print("Full-screen alarm intent and lock-screen activity flags configured.")
+          PY
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
