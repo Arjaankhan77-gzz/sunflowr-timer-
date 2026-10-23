@@ -135,6 +135,16 @@ export default function App() {
           if (requested.display !== 'granted') return;
         }
 
+        await LocalNotifications.createChannel({
+          id: 'sunflower-clock-alarms',
+          name: 'Sunflower Clock Alarms',
+          description: 'Scheduled alarm alerts',
+          importance: 5,
+          sound: 'default',
+          vibration: true,
+          visibility: 1,
+        });
+
         // Rebuild this app's scheduled alarm list whenever alarms are edited.
         const pending = await LocalNotifications.getPending();
         const existingIds = pending.notifications.map((n) => ({ id: n.id }));
