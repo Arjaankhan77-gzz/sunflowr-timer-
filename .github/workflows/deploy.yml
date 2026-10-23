@@ -32,6 +32,9 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
+      - name: Install Capacitor modules used by the app
+        run: npm install @capacitor/core@^7 @capacitor/local-notifications@^7 --legacy-peer-deps
+
       - name: Build website
         run: npm run build
 
