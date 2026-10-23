@@ -62,7 +62,7 @@ jobs:
           ]:
               tag = f'<uses-permission android:name="{permission}" />'
               if permission not in xml:
-                  xml = xml.replace('<application', f'    {tag}\\n    <application', 1)
+                  xml = xml.replace('<application', f'    {tag}\n    <application', 1)
           marker = 'android:name=".MainActivity"'
           if marker in xml:
               start = xml.index(marker)
@@ -81,7 +81,7 @@ jobs:
               raise SystemExit("LocalNotificationManager.java not found; full-screen patch cannot be applied")
           source = java.read_text()
           anchor = 'mBuilder.setContentIntent(pendingIntent);'
-          patched = anchor + '\\n        mBuilder.setFullScreenIntent(pendingIntent, true);'
+          patched = anchor + '\n        mBuilder.setFullScreenIntent(pendingIntent, true);'
           if 'mBuilder.setFullScreenIntent(pendingIntent, true);' not in source:
               if anchor not in source:
                   raise SystemExit("Notification content intent anchor not found; refusing to silently skip full-screen patch")
