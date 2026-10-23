@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { LocalNotifications } from '@capacitor/local-notifications';
 import {
   Clock,
   Timer,
@@ -117,6 +119,67 @@ export default function App() {
   // Persist Alarms
   useEffect(() => {
     localStorage.setItem('sunflower_clock_alarms', JSON.stringify(alarms));
+  }, [alarms]);
+
+  // Native Android notifications keep alarms scheduled when the WebView is closed.
+  // The browser-only interval below is only a foreground fallback.
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    let cancelled = false;
+    const syncNativeAlarms = async () => {
+      try {
+        const permission = await LocalNotifications.checkPermissions();
+        if (permission.display !== 'granted') {
+          const requested = await LocalNotifications.requestPermissions();
+          if (requested.display !== 'granted') return;
+        }
+
+        // Rebuild this app's scheduled alarm list whenever alarms are edited.
+        const pending = await LocalNotifications.getPending();
+        const existingIds = pending.notifications.map((n) => ({ id: n.id }));
+        if (existingIds.length) {
+          await LocalNotifications.cancel({ notifications: existingIds });
+        }
+        if (cancelled) return;
+
+        const enabled = alarms.filter((alarm) => alarm.enabled);
+        if (!enabled.length) return;
+
+        await LocalNotifications.schedule({
+          notifications: enabled.map((alarm) => {
+            const hour24 = alarm.is24h
+              ? alarm.hour
+              : (alarm.hour % 12) + (alarm.ampm === 'PM' ? 12 : 0);
+            const stableId = Array.from(alarm.id).reduce(
+              (hash, char) => ((hash * 31) + char.charCodeAt(0)) >>> 0,
+              7
+            ) % 2000000000;
+
+            return {
+              id: stableId || 1,
+              title: alarm.title || 'Sunflower Clock Alarm',
+              body: 'Your alarm is ringing. Open Sunflower Clock to stop it.',
+              schedule: {
+                on: { hour: hour24, minute: alarm.minute },
+                repeats: true,
+                allowWhileIdle: true,
+              },
+              channelId: 'sunflower-clock-alarms',
+              ongoing: true,
+              autoCancel: false,
+              smallIcon: 'ic_launcher',
+              extra: { alarmId: alarm.id },
+            };
+          }),
+        });
+      } catch (error) {
+        console.error('Could not schedule Android alarms:', error);
+      }
+    };
+
+    void syncNativeAlarms();
+    return () => { cancelled = true; };
   }, [alarms]);
 
   // Alarm Check Interval Loop
